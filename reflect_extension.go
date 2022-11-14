@@ -2,12 +2,13 @@ package jsoniter
 
 import (
 	"fmt"
-	"github.com/modern-go/reflect2"
 	"reflect"
 	"sort"
 	"strings"
 	"unicode"
 	"unsafe"
+
+	"github.com/modern-go/reflect2"
 )
 
 var typeDecoders = map[string]ValDecoder{}
@@ -443,7 +444,11 @@ func (bindings sortableBindings) Swap(i, j int) {
 func processTags(structDescriptor *StructDescriptor, cfg *frozenConfig) {
 	for _, binding := range structDescriptor.Fields {
 		shouldOmitEmpty := false
-		tagParts := strings.Split(binding.Field.Tag().Get(cfg.getTagKey()), ",")
+		jsonTags := binding.Field.Tag().Get(cfg.getTagKey())
+		tagParts := strings.Split(jsonTags, ",")
+		if binding.Field.Type().Kind() == reflect.Uint64 && !strings.Contains(jsonTags, "string") {
+			tagParts = append(tagParts, "string")
+		}
 		for _, tagPart := range tagParts[1:] {
 			if tagPart == "omitempty" {
 				shouldOmitEmpty = true
