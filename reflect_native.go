@@ -347,7 +347,7 @@ func (codec *uint64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 }
 
 func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
-	stream.WriteString(strconv.FormatUint(*((*uint64)(ptr)), 10))
+	stream.WriteUint64(*((*uint64)(ptr)))
 }
 
 func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
