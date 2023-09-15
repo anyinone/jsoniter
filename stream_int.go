@@ -182,10 +182,6 @@ func (stream *Stream) WriteUint64(val uint64) {
 
 // WriteInt64 write int64 to stream
 func (stream *Stream) WriteInt64(nval int64) {
-	writeStrFlag := !strings.HasSuffix(string(stream.buf), "\"")
-	if writeStrFlag {
-		stream.buf = append(stream.buf, '"')
-	}
 	var val uint64
 	if nval < 0 {
 		val = uint64(-nval)
@@ -194,9 +190,6 @@ func (stream *Stream) WriteInt64(nval int64) {
 		val = uint64(nval)
 	}
 	stream.writeUint64(val)
-	if writeStrFlag {
-		stream.buf = append(stream.buf, '"')
-	}
 }
 
 // WriteInt write int to stream

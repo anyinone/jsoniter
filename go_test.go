@@ -6,7 +6,7 @@ import (
 )
 
 type AAA struct {
-	A int64 `json:"a"`
+	A int `json:"a"`
 }
 
 func TestXXX(t *testing.T) {
