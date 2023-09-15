@@ -446,9 +446,6 @@ func processTags(structDescriptor *StructDescriptor, cfg *frozenConfig) {
 		shouldOmitEmpty := false
 		jsonTags := binding.Field.Tag().Get(cfg.getTagKey())
 		tagParts := strings.Split(jsonTags, ",")
-		if binding.Field.Type().Kind() == reflect.Uint64 && !strings.Contains(jsonTags, "string") {
-			tagParts = append(tagParts, "string")
-		}
 		for _, tagPart := range tagParts[1:] {
 			if tagPart == "omitempty" {
 				shouldOmitEmpty = true

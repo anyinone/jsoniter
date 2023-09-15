@@ -5,7 +5,12 @@ import (
 	"testing"
 )
 
+type AAA struct {
+	A int64 `json:"a"`
+}
+
 func TestXXX(t *testing.T) {
-	a := []int64{1, 2, 3}
-	fmt.Print(MarshalToString((a)))
+	a := AAA{}
+	UnmarshalFromString("{\"a\":\"-10000\"}", &a)
+	fmt.Print(a)
 }

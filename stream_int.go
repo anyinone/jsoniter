@@ -1,5 +1,7 @@
 package jsoniter
 
+import "strings"
+
 var digits []uint32
 
 func init() {
@@ -110,13 +112,10 @@ func (stream *Stream) WriteInt32(nval int32) {
 	stream.WriteUint32(val)
 }
 
-// WriteUint64 write uint64 to stream
-func (stream *Stream) WriteUint64(val uint64) {
-	stream.buf = append(stream.buf, '"')
+func (stream *Stream) writeUint64(val uint64) {
 	q1 := val / 1000
 	if q1 == 0 {
 		stream.buf = writeFirstBuf(stream.buf, digits[val])
-		stream.buf = append(stream.buf, '"')
 		return
 	}
 	r1 := val - q1*1000
@@ -124,7 +123,6 @@ func (stream *Stream) WriteUint64(val uint64) {
 	if q2 == 0 {
 		stream.buf = writeFirstBuf(stream.buf, digits[q1])
 		stream.buf = writeBuf(stream.buf, digits[r1])
-		stream.buf = append(stream.buf, '"')
 		return
 	}
 	r2 := q1 - q2*1000
@@ -133,7 +131,6 @@ func (stream *Stream) WriteUint64(val uint64) {
 		stream.buf = writeFirstBuf(stream.buf, digits[q2])
 		stream.buf = writeBuf(stream.buf, digits[r2])
 		stream.buf = writeBuf(stream.buf, digits[r1])
-		stream.buf = append(stream.buf, '"')
 		return
 	}
 	r3 := q2 - q3*1000
@@ -143,7 +140,6 @@ func (stream *Stream) WriteUint64(val uint64) {
 		stream.buf = writeBuf(stream.buf, digits[r3])
 		stream.buf = writeBuf(stream.buf, digits[r2])
 		stream.buf = writeBuf(stream.buf, digits[r1])
-		stream.buf = append(stream.buf, '"')
 		return
 	}
 	r4 := q3 - q4*1000
@@ -154,7 +150,6 @@ func (stream *Stream) WriteUint64(val uint64) {
 		stream.buf = writeBuf(stream.buf, digits[r3])
 		stream.buf = writeBuf(stream.buf, digits[r2])
 		stream.buf = writeBuf(stream.buf, digits[r1])
-		stream.buf = append(stream.buf, '"')
 		return
 	}
 	r5 := q4 - q5*1000
@@ -171,11 +166,26 @@ func (stream *Stream) WriteUint64(val uint64) {
 	stream.buf = writeBuf(stream.buf, digits[r3])
 	stream.buf = writeBuf(stream.buf, digits[r2])
 	stream.buf = writeBuf(stream.buf, digits[r1])
-	stream.buf = append(stream.buf, '"')
+}
+
+// WriteUint64 write uint64 to stream
+func (stream *Stream) WriteUint64(val uint64) {
+	writeStrFlag := !strings.HasSuffix(string(stream.buf), "\"")
+	if writeStrFlag {
+		stream.buf = append(stream.buf, '"')
+	}
+	stream.writeUint64(val)
+	if writeStrFlag {
+		stream.buf = append(stream.buf, '"')
+	}
 }
 
 // WriteInt64 write int64 to stream
 func (stream *Stream) WriteInt64(nval int64) {
+	writeStrFlag := !strings.HasSuffix(string(stream.buf), "\"")
+	if writeStrFlag {
+		stream.buf = append(stream.buf, '"')
+	}
 	var val uint64
 	if nval < 0 {
 		val = uint64(-nval)
@@ -183,15 +193,25 @@ func (stream *Stream) WriteInt64(nval int64) {
 	} else {
 		val = uint64(nval)
 	}
-	stream.WriteUint64(val)
+	stream.writeUint64(val)
+	if writeStrFlag {
+		stream.buf = append(stream.buf, '"')
+	}
 }
 
 // WriteInt write int to stream
-func (stream *Stream) WriteInt(val int) {
-	stream.WriteInt64(int64(val))
+func (stream *Stream) WriteInt(nval int) {
+	var val uint64
+	if nval < 0 {
+		val = uint64(-nval)
+		stream.buf = append(stream.buf, '-')
+	} else {
+		val = uint64(nval)
+	}
+	stream.writeUint64(val)
 }
 
 // WriteUint write uint to stream
 func (stream *Stream) WriteUint(val uint) {
-	stream.WriteUint64(uint64(val))
+	stream.writeUint64(uint64(val))
 }

@@ -220,8 +220,15 @@ func (iter *Iterator) readUint32(c byte) (ret uint32) {
 // ReadInt64 read int64
 func (iter *Iterator) ReadInt64() (ret int64) {
 	c := iter.nextToken()
+	strFlag := c == '"'
+	if strFlag {
+		c = iter.readByte()
+	}
 	if c == '-' {
 		val := iter.readUint64(iter.readByte())
+		if strFlag {
+			iter.readByte()
+		}
 		if val > math.MaxInt64+1 {
 			iter.ReportError("ReadInt64", "overflow: "+strconv.FormatUint(uint64(val), 10))
 			return
@@ -229,6 +236,9 @@ func (iter *Iterator) ReadInt64() (ret int64) {
 		return -int64(val)
 	}
 	val := iter.readUint64(c)
+	if strFlag {
+		iter.readByte()
+	}
 	if val > math.MaxInt64 {
 		iter.ReportError("ReadInt64", "overflow: "+strconv.FormatUint(uint64(val), 10))
 		return
