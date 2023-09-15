@@ -62,7 +62,7 @@ func (any *uint64Any) ToString() string {
 }
 
 func (any *uint64Any) WriteTo(stream *Stream) {
-	stream.WriteUint64(any.val)
+	stream.WriteString(strconv.FormatUint(any.val, 10))
 }
 
 func (any *uint64Any) Parse() *Iterator {
